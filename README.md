@@ -58,4 +58,6 @@ Joint model | 0.9789
 
 ![Model accuracies](imgs/model_hist.png)
 
-We find that the convolutional neural network performs the best, learning to recognize written digits with greater than 99% accuracy. This is unsurprising as the conv. neural net, as a model, has the best potential to take advantage of the image-structure of the data, rather than viewing each pixel independently like the rest of the models do. It is also interesting that the joint model performs worse (but not significantly so)- it seems that the models frequently misclassify the same digits (if the models never collided in misclassifying digits, the models would every time get outvoted by the others leading to 100% accuracy), so perhaps digits like 1 and 7 are tricky.
+We find that the convolutional neural network performs the best, learning to recognize written digits with greater than 99% accuracy. This is unsurprising as the conv neural net takes advantage of the image-structure of the data rather than viewing each pixel independently like the rest of the models do. 
+
+It is also interesting that the joint model performs worse than some of the individual models. It seems that the models frequently misclassify the same digits- if the models never collided in misclassifying digits, the models would every time get outvoted by the others leading to 100% accuracy. Perhaps digits like 1 and 7 are tricky and are often misclassified, leading to a poorer overall accuracy.
