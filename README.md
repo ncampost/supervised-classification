@@ -44,17 +44,19 @@ Now that we've built five models to classify the digits, we can build a sixth mo
 
 Now we have six models that have learned to classify the MNIST dataset by learning on the training set. Now we can run them on the test set to see how they perform on samples they have not seen before. The results are listed below, including some baselines which are untuned out-of-the-box versions of random forest and logistic regression (we didn't try to tune their parameters to the problem at all).
 
-Model | Accuracy
-------|---------
-Random forest baseline | 0.9098
-Logistic regression baseline | 0.8832
-------|---------
-Random forest | 0.9674
-Logistic regression | 0.9201
-Support vector machine | 0.9466
-Neural network | 0.9807
-Conv. neural network | 0.9922
-Joint model | 0.9789
+Model | Accuracy | Error rate (1 - Accuracy)
+------|--------- | ---------
+Random forest baseline | 0.9098 | 0.0902
+Logistic regression baseline | 0.8832 | 0.1168
+------|--------- | ------- | ---------
+Random forest | 0.9674 | 0.0326
+Logistic regression | 0.9201 | 0.0799
+Support vector machine | 0.9466 | 0.0534 
+Neural network | 0.9807 | 0.0193
+Conv. neural network | 0.9922 | 0.0078
+Joint model | 0.9789 | 0.0211
+
+Here is a plot of the error rate for each model:
 
 ![Model accuracies](imgs/model_hist.png)
 
