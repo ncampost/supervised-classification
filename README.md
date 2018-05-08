@@ -5,6 +5,7 @@ Here's an approach to a canonical machine learning problem: classifying handwrit
 * Logistic regression classifer
 * Support vector machine classifier
 * Neural network (multi-layer perceptron)
+* Boosting with LightGBM
 * Convolutional neural network
 * Joint voting classifer using the above five models.
 
@@ -16,7 +17,7 @@ Each of these models have a set of hyperparameters that are specified before tra
 
 ### Random forest
 
-We can train a random forest classifier from the sklearn library and gridsearch to tune the hyperparameters `n_estimators`, `max_depth`, and `max_features`, finding that values of `n_estimators` = 47, `max_depth` = 130, and `max_features` = `sqrt` seem to give the best validation scores.
+We can train a random forest decision tree classifier from the sklearn library and gridsearch to tune the hyperparameters `n_estimators`, `max_depth`, and `max_features`, finding that values of `n_estimators` = 47, `max_depth` = 130, and `max_features` = `sqrt` seem to give the best validation scores.
 
 ### Logistic regression
 
@@ -29,6 +30,10 @@ We can also train a support vector machine to perform classification, tuning the
 ### Neural network
 
 We can also build a classic MLP neural network via Keras to perform classification. We explore a variety of network structures, regularization parameters, activation functions, and dropout factors to tune the network, settling on a deep neural network (4 hidden layers, one of size 1568 and three of size 784) and tanh activation.
+
+### Boosting classifiers
+
+We also use LightGBM to train boosting classifiers, similar process as above.
 
 ## Other models
 
@@ -54,6 +59,7 @@ Logistic regression | 0.9201 | 0.0799
 Support vector machine | 0.9466 | 0.0534 
 Neural network | 0.9807 | 0.0193
 Conv. neural network | 0.9922 | 0.0078
+Boosting | 0.9781 | 0.0219
 Joint model | 0.9789 | 0.0211
 
 Here is a plot of the error rate for each model:

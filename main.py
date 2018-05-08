@@ -20,8 +20,12 @@ from keras import optimizers
 from keras.models import load_model
 from keras.utils import to_categorical
 
+# Boosting model
+import lightgbm as lgb
+
 
 def main():
+    
     # Get data.
     # X[i] is a 784-dim vector of [0,1] greyscale values.
     # Y[i] is a scalar indicating digit class. 
@@ -59,6 +63,15 @@ def main():
         NN.save('2111_fulltrain.h5')
     else:
         NN = load_model('2111_fulltrain.h5')
+
+
+    # Boosting classifier. Not used in committee model.
+    # Load data into LBGDataset
+    train_dataset = lgb.Dataset(x_train[:n_train], label=y_train[:n_train])
+    param = {'num_leaves':47, 'num_trees':150, 'metric':'multi_logloss', 'objective': 'multiclass', 'num_class':10}
+    num_rounds = 20
+    print "Fitting boosting classifer..."
+    bst = lgb.train(param, train_dataset, num_rounds)
 
     # Convolutional neural network
     # Validation accuracy: 0.9816
@@ -136,6 +149,10 @@ def main():
     CNN_preds_single = np.argmax(CNN_preds,axis=1)
     CNN_acc = np.sum(np.equal(CNN_preds_single, y_test)) / float(n_predict)
 
+    print "Predicting boosting..."
+    preds = np.argmax(bst.predict(x_test[:n_predict]), axis=1)
+    BST_acc = np.sum(np.equal(preds, y_test[:n_predict])) / float(n_predict)
+
     print "Gathering predictions and verifying..."
     preds = np.argmax(RF_preds + LR_preds + SVM_preds + NN_preds + CNN_preds, axis=1)
     joint_acc = np.sum(np.equal(preds, y_test)) / float(n_predict)
@@ -145,6 +162,7 @@ def main():
     print "SVM val %f" % (SVM_acc)
     print "NN val %f" % (NN_acc)
     print "CNN val %f" % (CNN_acc)
+    print "BST val %f" % (BST_acc)
     print "Joint val %f" % (joint_acc)
     
 
@@ -197,13 +215,14 @@ def build_cnn(n_classes, input_shape):
 def make_histogram():
     # create bar plot of rmse for different methods/features used
     # data to plot
-    n_groups = 6
-    acc_rf = 0.9674
-    acc_lr = 0.9201
-    acc_svm = 0.9466
-    acc_nn = 0.9807
-    acc_cnn = 0.9922
-    acc_joint = 0.9789
+    n_groups = 7
+    err_rf = 1 -0.9674
+    err_lr = 1 - 0.9201
+    err_svm = 1 - 0.9466
+    err_nn = 1 - 0.9807
+    err_cnn = 1 - 0.9922
+    err_joint = 1 - 0.9789
+    err_boost = 1 - 0.9781
     
     # create plot
     fig, ax = plt.subplots()
@@ -211,27 +230,31 @@ def make_histogram():
     bar_width = 0.4
     opacity = 0.8
     
-    rects1 = plt.bar(0, acc_rf, bar_width,
+    rects1 = plt.bar(0,  err_rf, bar_width,
                     alpha=opacity,
                     color='b')
     
-    rects2 = plt.bar(1, acc_lr, bar_width,
+    rects2 = plt.bar(1, err_lr, bar_width,
                     alpha=opacity,
                     color='c')
 
-    rects3 = plt.bar(2, acc_svm, bar_width,
+    rects3 = plt.bar(2, err_svm, bar_width,
                     alpha=opacity,
                     color='g')
 
-    rects4 = plt.bar(3, acc_nn, bar_width,
+    rects4 = plt.bar(3, err_nn, bar_width,
                     alpha=opacity,
                     color='y')
 
-    rects5 = plt.bar(4, acc_cnn, bar_width,
+    rects5 = plt.bar(4, err_cnn, bar_width,
                     alpha=opacity,
                     color='r')
     
-    rects6 = plt.bar(5, acc_joint, bar_width,
+    rects7 = plt.bar(5, err_boost, bar_width,
+                    alpha=opacity,
+                    color='m')
+    
+    rects7 = plt.bar(6, err_joint, bar_width,
                     alpha=opacity,
                     color='k')
 
@@ -242,13 +265,12 @@ def make_histogram():
         top='off')         # ticks along the top edge are off
         
     #plt.xlabel('Model')
-    plt.ylabel('Accuracy')
+    plt.ylabel('Error rate')
     plt.title('Tuned Model Performance')
-    plt.xticks(index, ('Random Forest', 'Logistic Regression', 'Support Vector Machine', 'Neural Net', 'Conv Neural Net', 'Joint Model'))
+    plt.xticks(index, ('Random Forest', 'Logistic Regression', 'Support Vector Machine', 'Neural Net', 'Conv Neural Net', 'Boosting', 'Joint Model'))
 
-    plt.axhline(y=0.8832, linewidth=2, linestyle='--', color='m', label='Logistic Regression benchmark')
-    plt.axhline(y=0.9098, linewidth=2, linestyle='--', color='r', label='Random Forest benchmark')
-    plt.axhline(y=1, linewidth=2,  linestyle='--', color='k', label='100% line')
+    plt.axhline(y=1 - 0.8832, linewidth=2, linestyle='--', color='m', label='Logistic Regression benchmark')
+    plt.axhline(y=1 - 0.9098, linewidth=2, linestyle='--', color='r', label='Random Forest benchmark')
 
     # Shrink current axis's height by 20% on the bottom
     box = ax.get_position()
